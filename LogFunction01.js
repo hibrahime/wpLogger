@@ -29,6 +29,7 @@ var colorList = [
     "darkgreen"
 ];
 
+
 var htmlString = '<!DOCTYPE HTML>' +
     '<html>' +
     '' +
@@ -63,6 +64,11 @@ var isContinue = true;
 var dayOfMonth = 6;
 var maxRunningTime = new Date(new Date().getFullYear(), new Date().getMonth(), dayOfMonth, 8, 0);
 var minMsgSendingTime = new Date(new Date().getFullYear(), new Date().getMonth(), dayOfMonth, 5, 0);
+var backupInterval = 60;
+var checkOnlineSleep = 300;
+var changePersonSleep = 400;
+var setTimeoutSleep = 300;
+var staticNumber = (backupInterval * 60 * 1000 / (changePersonSleep + checkOnlineSleep + setTimeoutSleep));
 
 var messageList = [
     "Good morning",
@@ -196,9 +202,8 @@ async function checkOnline() {
     var statusText = document.getElementsByClassName(htmlClasses.status);
     var statusTextString = undefined;
 
-    var statusTimes = jsonData[selectedPerson]["statusTimes"];
-    statusTimes ? null : statusTimes = [];
-    var latestStatusInfo = statusTimes[0];
+    jsonData[selectedPerson]["statusTimes"] ? null : jsonData[selectedPerson]["statusTimes"] = [];
+    var latestStatusInfo = jsonData[selectedPerson]["statusTimes"][0];
 
 
     if (statusText.length > 0) {
@@ -246,7 +251,6 @@ function cleanMemory() {
 function stop() {
     downloadFiles();
     console.log("Stopped: ", dateString);
-    clearInterval(intervalId);
     isContinue = false;
 };
 
@@ -258,8 +262,7 @@ function stop() {
     if (peopleList.length > 1) {
         selectedPerson = peopleList[counter % peopleList.length];
         changePerson();
-        await sleep(700);
-        counter++;
+        await sleep(changePersonSleep);
     }
     else {
         selectedPerson = peopleList[0];
@@ -284,35 +287,19 @@ function stop() {
     }
 
     await checkOnline();
-    await sleep(500);
+    await sleep(checkOnlineSleep);
     sendFirstMessage();
+
+    if (counter % staticNumber == 0) {
+        downloadFiles();
+        //cleanMemory();
+    }
 
     if (dateNow.getTime() - maxRunningTime.getTime() > 0 || !isContinue) {
         stop();
     }
     else {
-        setTimeout(start, 500);
+        setTimeout(start, setTimeoutSleep);
     }
+    counter++;
 })();
-
-var index = 0
-var intervalId = setInterval(function () {
-    downloadFiles();
-    // if (index == 30) {
-    //     cleanMemory();
-    //     index = 0;
-    // }
-    console.log("index",index);
-    index++;
-}, 1000 * 60 * 20);
-
-console.log("intervalId", intervalId);
-
-function toogleDataSeries(e) {
-    if (typeof (e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-        e.dataSeries.visible = false;
-    } else {
-        e.dataSeries.visible = true;
-    }
-    chart.render();
-}
