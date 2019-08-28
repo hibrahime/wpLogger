@@ -266,6 +266,9 @@ function stop() {
     }
     else {
         selectedPerson = peopleList[0];
+        if(counter<2){
+			changePerson();
+		}
     }
 
     jsonData[selectedPerson] ? null : jsonData[selectedPerson] = {};
