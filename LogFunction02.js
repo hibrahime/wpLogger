@@ -9,6 +9,7 @@
 - check isOnline or not
 - is user have message , is startdate < t < enddate, issent false, isFirstOnline
 - send message func.
+- test
 */
 
 function start() {
