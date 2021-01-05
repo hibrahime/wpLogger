@@ -1,12 +1,3 @@
-/*
-- sendMessage(messageObj) it can send message with message object 
-- usersToFollow loop click each item  
-- check isOnline or not
-- is user have message , is startdate < t < enddate, issent false, isFirstOnline
-- send message func.
-- test
-- test5
-*/
 const message = {
     'text': 'test',
     'to': 'person 1',
@@ -15,13 +6,19 @@ const message = {
     'sendAtFirstOnline': true,
     'isSent': false
 };
-const peopleToFollow = [{'name': 'Person 2', 'isOnline': false}];
+const peopleToFollow = [{'name': 'Person 2', 'isOnline': false, 'onlineTimes':[{'online':'','offline':''}]}];
 const messagesToSend = [message];
 
 function start() {
-//addMessageReceiversToFollow
+    //addMessageReceiversToFollow
     console.log('peopleToFollow',peopleToFollow);
     console.log('messagesToSend',messagesToSend);
     //loopInsidePeopleToFollow
     //click each people
+    //waitUntilValidInfo
+    //checkMessagesToSend
+    // isPersonHasMessage, isInsideDateRange, !isSent
+    // isSendAtFirstOnline , isPersonOnline
+    // sendMessage(messageObj)
+
 }
