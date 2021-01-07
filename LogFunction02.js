@@ -6,13 +6,16 @@ const message = {
     'sendAtFirstOnline': true,
     'isSent': false
 };
-const peopleToFollow = [{'name': 'Person 2', 'isOnline': false, 'onlineTimes':[{'online':'','offline':''}]}];
+const peopleToFollow = [{'name': 'Person 2', 'isOnline': false, 'onlineTimes':[]}];
 const messagesToSend = [message];
 
 function start() {
-    //addMessageReceiversToFollow
+    addMessageReceiversToFollow();
+
     console.log('peopleToFollow',peopleToFollow);
     console.log('messagesToSend',messagesToSend);
+
+    
     //loopInsidePeopleToFollow
     //click each people
     //waitUntilValidInfo
@@ -21,4 +24,14 @@ function start() {
     // isSendAtFirstOnline , isPersonOnline
     // sendMessage(messageObj)
 
+}
+
+start();
+
+function addMessageReceiversToFollow() {
+    messagesToSend.forEach(m => {
+        if (peopleToFollow.findIndex(p => p.name === m.to) === -1) {
+            peopleToFollow.push({ 'name': m.to, 'isOnline': false, 'onlineTimes': [] });
+        }
+    });
 }
