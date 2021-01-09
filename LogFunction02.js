@@ -10,7 +10,9 @@ const peopleToFollow = [{'name': 'Person 2', 'isOnline': false, 'onlineTimes':[]
 const messagesToSend = [message];
 let isContinue = true;
 let counter = 0;
+const checkOnlineSleep = 300;
 const changePersonSleep = 400;
+const waitValidStatusSleep = 3000;
 
 const htmlClasses = {
     "status": "_315-i",
@@ -21,43 +23,22 @@ const htmlClasses = {
 }
 
 const statusTexts = {
-    "online": "çevrimiçi",
-    "typing": "yazıyor...",
-    "voiceRecording1": "ses kaydediyor...",
-    "voiceRecording2": "ses kaydediliyor...",
-    "waitingForStatusInfo": "kişi bilgisi için buraya tıkla"
+    "onlineTypes": {
+        "online": "çevrimiçi",
+        "typing": "yazıyor...",
+        "voiceRecording1": "ses kaydediyor...",
+        "voiceRecording2": "ses kaydediliyor..."
+    },
+    "unknownTypes": {
+        "waitingForStatusInfo": "kişi bilgisi için buraya tıkla"
+    }
 }
 
-async function checkOnline() {
+function checkStatus() {
     var statusText = document.getElementsByClassName(htmlClasses.status);
-    var statusTextString = undefined;
-
-    jsonData[selectedPerson]["statusTimes"] ? null : jsonData[selectedPerson]["statusTimes"] = [];
-    var latestStatusInfo = jsonData[selectedPerson]["statusTimes"][0];
-
-    //waitUntilValidInfo
-    if (statusText.length > 0) {
-        statusTextString = statusText[0].innerHTML;
-        if (statusTextString == statusTexts.waitingForStatusInfo) {
-            await sleep(3000);
-        }
-    }
-
-    if ((latestStatusInfo && latestStatusInfo.OfflineMoment && latestStatusInfo.OnlineMoment) || !latestStatusInfo) {
-        if (statusTextString == statusTexts.online || statusTextString == statusTexts.typing || statusTextString == statusTexts.voiceRecording1 || statusTextString == statusTexts.voiceRecording2) {
-            jsonData[selectedPerson]["statusTimes"].unshift({
-                "OnlineMoment": dateString
-            });
-            [...chart.data].filter(p => p.name == selectedPerson)[0].dataPoints.push({ x: dateGetTime, y: 1 });
-        }
-    }
-    else if (latestStatusInfo && !latestStatusInfo.OfflineMoment && latestStatusInfo.OnlineMoment) {
-        if (!(statusTextString == statusTexts.online || statusTextString == statusTexts.typing || statusTextString == statusTexts.voiceRecording1 || statusTextString == statusTexts.voiceRecording2)) {
-            jsonData[selectedPerson]["statusTimes"][0].OfflineMoment = dateString;
-            [...chart.data].filter(p => p.name == selectedPerson)[0].dataPoints.push({ x: dateGetTime, y: 0 });
-        }
-    }
-};
+    var statusTextString = statusText[0].innerHTML;
+    return statusTextString;
+}
 
 function simulateMouseEvents(element, eventName) {
     var mouseEvent = document.createEvent('MouseEvents');
@@ -87,12 +68,15 @@ function start() {
 
     do {
         clickPerson(peopleToFollow[counter%peopleToFollow.length]);
-        await checkOnline();
+        await sleep(checkOnlineSleep);
+        const status = checkStatus();
+        if(Object.values(statusTexts.onlineTypes).includes(status)){
+
+        } else if (Object.values(statusTexts.unknownTypes).includes(status)){
+            await sleep(waitValidStatusSleep);
+        }
         await sleep(changePersonSleep);
     } while (isContinue)
-
-    //loopInsidePeopleToFollow
-    //click each people
 
     //checkMessagesToSend
     // isPersonHasMessage, isInsideDateRange, !isSent
