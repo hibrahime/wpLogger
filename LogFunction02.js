@@ -1,14 +1,14 @@
-const document = {};
-const window = {};
+// const document = {};
+// const window = {};
 const message = {
-  text: 'Dostum yeni çelıncımız nedir?',
-  to: 'Furkan Burak Bağcı',
-  startDate: '2021-01-13 21:30',
-  endDate: '2021-01-13 22:55',
+  text: `Test New`,
+  to: 'Halil İbrahim Eryıldız',
+  startDate: '2021-02-14 14:30',
+  endDate: '2021-02-14 22:55',
   sendAtFirstOnline: false,
   isSent: false,
 };
-const peopleToFollow = [{ name: 'Furkan Burak Bağcı', isOnline: false, onlineTimes: [] }];
+const peopleToFollow = [{ name: 'Halil İbrahim Eryıldız', isOnline: false, onlineTimes: [] }];
 const messagesToSend = [message];
 const isContinue = true;
 const counter = 0;
@@ -17,11 +17,11 @@ const changePersonSleep = 400;
 const waitValidStatusSleep = 3000;
 
 const htmlClasses = {
-  status: '_3Id9P', // _3Id9P
+  status: '_3Id9P',
   inPageUserName: '_19RFN',
-  sendButton: 'button._3M-N-',
-  textBox: 'div.DuUXI',// div.DuUXI
-  contactsUserNames: '_1hI5g', // _1hI5g
+  sendButton: 'button._2Ujuu',
+  textBox: '._1hRBM ._1awRl',
+  contactsUserNames: '_1hI5g',
 };
 
 const statusTexts = {
@@ -46,20 +46,21 @@ function simulateMouseEvents(element, eventName) {
   element.dispatchEvent(mouseEvent);
 }
 
-function sendMessage({ text }) {
+function sendMessage(message) {
+  const { text, to, } = message;
   window.InputEvent = window.Event || window.InputEvent;
 
   const event = new InputEvent('input', {
     bubbles: true,
   });
-  // document.querySelector(_1awRl).textContent = 'text'
 
   const textbox = document.querySelector(htmlClasses.textBox);
 
   textbox.textContent = text;
   textbox.dispatchEvent(event);
-  console.log(`${text}`);
+  console.log(`"${text}" message sent to "${to}" at "${(new Date()).toDateString()}"!`);
   document.querySelector(htmlClasses.sendButton).click();
+  message.isSent = true;
 }
 
 function isInsideDateRange(sd, ed) {
@@ -77,7 +78,7 @@ function isInsideDateRange(sd, ed) {
 
 function checkStatus() {
   const statusText = document.getElementsByClassName(htmlClasses.status);
-  const statusTextString = statusText[0].innerHTML;
+  const statusTextString = statusText[0] ? statusText[0].innerHTML : '';
   return statusTextString;
 }
 
@@ -98,6 +99,17 @@ function addMessageReceiversToFollow() {
 function help() {
   console.log('peopleToFollow', peopleToFollow);
   console.log('messagesToSend', messagesToSend);
+  console.log('To follow someone new', `peopleToFollow.push({name: "person to follow ", isOnline: false, onlineTimes: []})`);
+  console.log('To send someone a new message: ', `
+  messagesToSend.push({
+    text: 'Message Text',
+    to: 'Message To',
+    startDate: 'message send from date YYYY-MM-DD hh:mm',
+    endDate: 'message send to date YYYY-MM-DD hh:mm',
+    sendAtFirstOnline: true,
+    isSent: true,
+  })
+  `);
 }
 
 async function start() {
@@ -108,8 +120,19 @@ async function start() {
     const person = peopleToFollow[counter % peopleToFollow.length];
     clickPerson(person);
     await sleep(checkOnlineSleep);
+
     const status = checkStatus();
-    person.isOnline = Object.values(statusTexts.onlineTypes).includes(status);
+    const isPersonOnline = Object.values(statusTexts.onlineTypes).includes(status);
+
+    if(!person.isOnline && isPersonOnline){
+      person.isOnline = isPersonOnline;
+      person.onlineTimes.push({onlineAt:(new Date()).toDateString()})
+    } else if (person.isOnline && !isPersonOnline){
+      person.isOnline = isPersonOnline;
+      person.onlineTimes[person.onlineTimes.length].offlineAt = (new Date()).toDateString()
+    }
+
+    
     if (!Object.values(statusTexts.unknownTypes).includes(status)) {
       const messages = messagesToSend.filter((m) => m.to === person.name
       && isInsideDateRange(m.startDate, m.endDate)
@@ -120,8 +143,7 @@ async function start() {
       if (messages && messages.length) {
         for (let index = 0; index < messages.length; index += 1) {
           const msgObj = messages[index];
-          console.log('msgObj', msgObj);
-          // sendMessage(msgObj)
+          sendMessage(msgObj)
         }
       }
     } else {
