@@ -46,8 +46,8 @@ function simulateMouseEvents(element, eventName) {
   element.dispatchEvent(mouseEvent);
 }
 
-function sendMessage(message) {
-  const { text, to, } = message;
+function sendMessage(msg) {
+  const { text, to } = msg;
   window.InputEvent = window.Event || window.InputEvent;
 
   const event = new InputEvent('input', {
@@ -60,7 +60,7 @@ function sendMessage(message) {
   textbox.dispatchEvent(event);
   console.log(`"${text}" message sent to "${to}" at "${(new Date()).toDateString()}"!`);
   document.querySelector(htmlClasses.sendButton).click();
-  message.isSent = true;
+  msg.isSent = true;
 }
 
 function isInsideDateRange(sd, ed) {
@@ -99,7 +99,9 @@ function addMessageReceiversToFollow() {
 function help() {
   console.log('peopleToFollow', peopleToFollow);
   console.log('messagesToSend', messagesToSend);
-  console.log('To follow someone new', `peopleToFollow.push({name: "person to follow ", isOnline: false, onlineTimes: []})`);
+  console.log('To follow someone new', `
+  peopleToFollow.push({name: "person to follow ", isOnline: false, onlineTimes: []})
+  `);
   console.log('To send someone a new message: ', `
   messagesToSend.push({
     text: 'Message Text',
@@ -124,15 +126,14 @@ async function start() {
     const status = checkStatus();
     const isPersonOnline = Object.values(statusTexts.onlineTypes).includes(status);
 
-    if(!person.isOnline && isPersonOnline){
+    if (!person.isOnline && isPersonOnline) {
       person.isOnline = isPersonOnline;
-      person.onlineTimes.push({onlineAt:(new Date()).toDateString()})
-    } else if (person.isOnline && !isPersonOnline){
+      person.onlineTimes.push({ onlineAt: (new Date()).toDateString() });
+    } else if (person.isOnline && !isPersonOnline) {
       person.isOnline = isPersonOnline;
-      person.onlineTimes[person.onlineTimes.length].offlineAt = (new Date()).toDateString()
+      person.onlineTimes[person.onlineTimes.length].offlineAt = (new Date()).toDateString();
     }
 
-    
     if (!Object.values(statusTexts.unknownTypes).includes(status)) {
       const messages = messagesToSend.filter((m) => m.to === person.name
       && isInsideDateRange(m.startDate, m.endDate)
@@ -143,7 +144,7 @@ async function start() {
       if (messages && messages.length) {
         for (let index = 0; index < messages.length; index += 1) {
           const msgObj = messages[index];
-          sendMessage(msgObj)
+          sendMessage(msgObj);
         }
       }
     } else {
