@@ -1,15 +1,7 @@
 // const document = {};
 // const window = {};
-const message = {
-  text: `Test New`,
-  to: 'Halil İbrahim Eryıldız',
-  startDate: '2021-02-14 14:30',
-  endDate: '2021-02-14 22:55',
-  sendAtFirstOnline: false,
-  isSent: false,
-};
-const peopleToFollow = [{ name: 'Halil İbrahim Eryıldız', isOnline: false, onlineTimes: [] }];
-const messagesToSend = [message];
+const peopleToFollow = [];
+const messagesToSend = [];
 const isContinue = true;
 const counter = 0;
 const checkOnlineSleep = 300;
@@ -44,6 +36,10 @@ function simulateMouseEvents(element, eventName) {
   const mouseEvent = document.createEvent('MouseEvents');
   mouseEvent.initEvent(eventName, true, true);
   element.dispatchEvent(mouseEvent);
+}
+
+function getDateTimeString() {
+  return `${(new Date()).toDateString()} ${(new Date()).toTimeString()}`;
 }
 
 function sendMessage(msg) {
@@ -120,36 +116,39 @@ async function start() {
 
   do {
     const person = peopleToFollow[counter % peopleToFollow.length];
-    clickPerson(person);
-    await sleep(checkOnlineSleep);
+    if (person) {
+      clickPerson(person);
+      await sleep(checkOnlineSleep);
 
-    const status = checkStatus();
-    const isPersonOnline = Object.values(statusTexts.onlineTypes).includes(status);
+      const status = checkStatus();
+      const isPersonOnline = Object.values(statusTexts.onlineTypes).includes(status);
 
-    if (!person.isOnline && isPersonOnline) {
-      person.isOnline = isPersonOnline;
-      person.onlineTimes.push({ onlineAt: (new Date()).toDateString() });
-    } else if (person.isOnline && !isPersonOnline) {
-      person.isOnline = isPersonOnline;
-      person.onlineTimes[person.onlineTimes.length].offlineAt = (new Date()).toDateString();
-    }
-
-    if (!Object.values(statusTexts.unknownTypes).includes(status)) {
-      const messages = messagesToSend.filter((m) => m.to === person.name
-      && isInsideDateRange(m.startDate, m.endDate)
-      && !m.isSent
-      && ((message.sendAtFirstOnline && person.isOnline)
-        || !message.sendAtFirstOnline));
-
-      if (messages && messages.length) {
-        for (let index = 0; index < messages.length; index += 1) {
-          const msgObj = messages[index];
-          sendMessage(msgObj);
-        }
+      if (!person.isOnline && isPersonOnline) {
+        person.isOnline = isPersonOnline;
+        person.onlineTimes.push({ onlineAt: getDateTimeString() });
+      } else if (person.isOnline && !isPersonOnline) {
+        person.isOnline = isPersonOnline;
+        person.onlineTimes[person.onlineTimes.length - 1].offlineAt = getDateTimeString();
       }
-    } else {
-      await sleep(waitValidStatusSleep);
+
+      if (!Object.values(statusTexts.unknownTypes).includes(status)) {
+        const messages = messagesToSend.filter((m) => m.to === person.name
+        && isInsideDateRange(m.startDate, m.endDate)
+        && !m.isSent
+        && ((message.sendAtFirstOnline && person.isOnline)
+          || !message.sendAtFirstOnline));
+
+        if (messages && messages.length) {
+          for (let index = 0; index < messages.length; index += 1) {
+            const msgObj = messages[index];
+            sendMessage(msgObj);
+          }
+        }
+      } else {
+        await sleep(waitValidStatusSleep);
+      }
     }
+
     await sleep(changePersonSleep);
   } while (isContinue);
 }
