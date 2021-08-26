@@ -1,9 +1,18 @@
 // const document = {};
 // const window = {};
-const peopleToFollow = [];
-const messagesToSend = [];
+const peopleToFollow = [{ name: 'Kişi Adı', isOnline: false, onlineTimes: [] }];
+const messagesToSend = [{
+  text: `Message`,
+  to: 'Kişi Adı',
+  startDate: '2021-02-18 08:00',
+  endDate: '2021-02-18 12:00',
+  sendAtFirstOnline: true,
+  isSent: false,
+}];
+// const peopleToFollow = [];
+// const messagesToSend = [];
 const isContinue = true;
-const counter = 0;
+let counter = 0;
 const checkOnlineSleep = 300;
 const changePersonSleep = 400;
 const waitValidStatusSleep = 3000;
@@ -135,8 +144,8 @@ async function start() {
         const messages = messagesToSend.filter((m) => m.to === person.name
         && isInsideDateRange(m.startDate, m.endDate)
         && !m.isSent
-        && ((message.sendAtFirstOnline && person.isOnline)
-          || !message.sendAtFirstOnline));
+        && ((m.sendAtFirstOnline && person.isOnline)
+          || !m.sendAtFirstOnline));
 
         if (messages && messages.length) {
           for (let index = 0; index < messages.length; index += 1) {
@@ -150,6 +159,7 @@ async function start() {
     }
 
     await sleep(changePersonSleep);
+    counter++;
   } while (isContinue);
 }
 
